@@ -6,6 +6,15 @@
 
 A decentralized application for managing recurring payments on Neo X blockchain, automating salary distributions and payment tracking.
 
+## Team
+👨‍💻 **Kaustubh Pardeshi**
+- Role: Frontend/Blockchain Developer
+- GitHub: [Kaustubh-404](https://github.com/Kaustubh-404)
+
+👨‍💻 **Atharva Waghachoure**
+- Role: Backend/Blockchain Developer
+- GitHub: [AtharvaWaghchoure](https://github.com/AtharvaWaghchoure)
+
 ## Features
 
 ### Organization Portal
@@ -119,5 +128,4 @@ Password: employee123
    - Check payment parameters
 
 ## License
-
 MIT License

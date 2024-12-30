@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PayPro - Blockchain-based Recurring Payment System
 
-## Getting Started
+## Demo Video
+[![PayPro Demo](https://img.youtube.com/vi/mhJvtpuE5VI/0.jpg)](https://www.youtube.com/watch?v=mhJvtpuE5VI)
+[Watch Demo Video](https://www.youtube.com/watch?v=mhJvtpuE5VI)
 
-First, run the development server:
+A decentralized application for managing recurring payments on Neo X blockchain, automating salary distributions and payment tracking.
 
+## Features
+
+### Organization Portal
+- Setup recurring payments
+- Track active/past payments
+- Process payments
+- Modify payment schedules
+
+### Employee Portal
+- View upcoming payments
+- Track payment history
+- Real-time status updates
+
+## Tech Stack
+- Next.js 15
+- TypeScript
+- TailwindCSS
+- RainbowKit v2
+- Wagmi v2
+- Viem
+- Ethers.js v5
+
+## Quick Setup
+
+### Prerequisites
+- Node.js 18+
+- NPM 9+
+- Neo X compatible wallet
+- GAS tokens
+
+### Installation
+
+1. Clone repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/paypro.git
+cd paypro
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Setup environment:
+```bash
+cp .env.example .env.local
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Configure `.env.local`:
+```env
+# Required: WalletConnect Project ID
+NEXT_PUBLIC_PROJECT_ID="your_wallet_connect_project_id"
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Choose network:
+# Mainnet
+NEXT_PUBLIC_CONTRACT_ADDRESS="0x33837cCc3fE3774e3b36513c81424E4944D08e57"
+# or Testnet
+NEXT_PUBLIC_CONTRACT_ADDRESS="0x3b415D08F725C9FFB40861e342dd3eD82a3555F1"
+```
 
-## Learn More
+4. Install and run:
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Network Details
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Neo X Mainnet
+- Chain ID: 47763
+- RPC: https://mainnet.rpc.banelabs.org
+- Contract: 0x33837cCc3fE3774e3b36513c81424E4944D08e57
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Neo X Testnet
+- Chain ID: 12227332
+- RPC: https://testnet.rpc.banelabs.org
+- Contract: 0x3b415D08F725C9FFB40861e342dd3eD82a3555F1
 
-## Deploy on Vercel
+## Demo Accounts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Organization
+```
+Email: admin@techcorp.com
+Password: admin123
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Employee
+```
+Email: john@techcorp.com
+Password: employee123
+```
+
+## Smart Contract Functions
+
+### Core
+- `setupRecurringPayment(address recipient, uint96 amount, uint64 interval)`
+- `processRecurringPayment(uint256 paymentId)`
+- `cancelRecurringPayment(uint256 paymentId)`
+- `updateRecurringPayment(uint256 paymentId, uint96 newAmount, uint64 newInterval)`
+
+### View
+- `getActivePaymentIds()`
+- `getPaymentStats()`
+- `canProcessPayment(uint256 paymentId)`
+
+## Troubleshooting
+
+1. **Wallet Issues**
+   - Verify network (Mainnet/Testnet)
+   - Check GAS balance
+   - Ensure correct RPC settings
+
+2. **Transaction Failures**
+   - Confirm GAS balance
+   - Verify recipient address
+   - Check payment parameters
+
+## License
+
+MIT License

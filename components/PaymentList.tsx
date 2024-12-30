@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { getContract } from "@/lib/contract";
 import { formatEther } from "viem";
+import { AlertCircle, Calendar, Clock, DollarSign, User } from 'lucide-react';
 
 type PaymentDetails = {
   recipient: string;
@@ -34,13 +35,11 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
         setError(null);
         const contract = getContract();
 
-        // Get active payment IDs
         const ids = (await publicClient.readContract({
           ...contract,
           functionName: "getActivePaymentIds",
         })) as bigint[];
 
-        // Fetch details for each payment
         const paymentDetails: Record<string, PaymentDetails> = {};
 
         for (const id of ids) {
@@ -91,10 +90,8 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
         args: [BigInt(id)],
       });
 
-      // Wait for the transaction to be mined
       await publicClient.waitForTransactionReceipt({ hash });
 
-      // Refresh payment details
       const canProcess = (await publicClient.readContract({
         ...contract,
         functionName: "canProcessPayment",
@@ -123,7 +120,7 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
   };
 
   const formatPeriod = (period: bigint) => {
-    const days = Number(period);
+    const days = Number(period) / 86400; // Convert seconds to days
     if (days === 1) return "Daily";
     if (days === 7) return "Weekly";
     if (days === 30) return "Monthly";
@@ -132,7 +129,7 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
 
   if (!address) {
     return (
-      <div className="text-center p-4 bg-yellow-50 rounded-lg">
+      <div className="text-center p-6 bg-yellow-500/10 border border-yellow-500/50 text-yellow-700 rounded-lg">
         Please connect your wallet to view payments
       </div>
     );
@@ -140,21 +137,28 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
 
   if (loading) {
     return (
-      <div className="text-center p-4">
-        <div className="animate-pulse">Loading payments...</div>
+      <div className="text-center p-6">
+        <div className="animate-pulse text-zinc-400">Loading payments...</div>
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-center p-4 bg-red-50 text-red-700 rounded-lg">{error}</div>;
+    return (
+      <div className="text-center p-6 bg-red-500/10 border border-red-500/50 text-red-700 rounded-lg flex items-center justify-center space-x-2">
+        <AlertCircle className="h-5 w-5" />
+        <span>{error}</span>
+      </div>
+    );
   }
 
   const paymentIds = Object.keys(payments);
 
   if (paymentIds.length === 0) {
     return (
-      <div className="text-center p-6 bg-gray-50 rounded-lg border">No active payments found</div>
+      <div className="text-center p-6 bg-zinc-800/50 border border-zinc-700 rounded-lg text-zinc-400">
+        No active payments found
+      </div>
     );
   }
 
@@ -167,25 +171,35 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
         return (
           <div
             key={id}
-            className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow"
+            className="border border-zinc-700 rounded-lg p-6 bg-zinc-800/50 hover:bg-zinc-800/70 transition-colors"
           >
             <div className="flex justify-between items-start">
-              <div className="space-y-2">
-                <div className="text-sm text-gray-500">Payment ID #{id}</div>
-                <div className="font-medium">{formatEther(payment.amount)} ETH</div>
-                <div className="text-sm text-gray-600">To: {formatAddress(payment.recipient)}</div>
-                <div className="text-sm text-gray-600">
-                  Frequency: {formatPeriod(payment.period)}
+              <div className="space-y-3">
+                <div className="text-sm text-zinc-400">Payment ID #{id}</div>
+                <div className="flex items-center space-x-2 text-xl font-medium text-white">
+                  <DollarSign className="h-5 w-5 text-primary" />
+                  <span>{formatEther(payment.amount)} ETH</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-zinc-400">
+                  <User className="h-4 w-4" />
+                  <span>To: {formatAddress(payment.recipient)}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-zinc-400">
+                  <Clock className="h-4 w-4" />
+                  <span>Frequency: {formatPeriod(payment.period)}</span>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm text-gray-500">
-                  Ends: {formatDate(payment.endTimestamp)}
+              <div className="text-right space-y-3">
+                <div className="flex items-center space-x-2 text-sm text-zinc-400">
+                  <Calendar className="h-4 w-4" />
+                  <span>Ends: {formatDate(payment.endTimestamp)}</span>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col items-end gap-2">
                   <div
-                    className={`text-sm px-2 py-1 rounded-full inline-block ${
-                      payment.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      payment.isActive
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-zinc-500/20 text-zinc-400"
                     }`}
                   >
                     {payment.isActive ? "Active" : "Inactive"}
@@ -194,11 +208,11 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
                     <button
                       onClick={() => handleProcessPayment(id)}
                       disabled={isProcessing}
-                      className={`text-sm px-3 py-1 rounded-full 
+                      className={`text-xs px-3 py-1 rounded-full 
                         ${
                           isProcessing
-                            ? "bg-blue-50 text-blue-400 cursor-not-allowed"
-                            : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                            ? "bg-primary/20 text-primary/60 cursor-not-allowed"
+                            : "bg-primary text-primary-foreground hover:bg-primary/90"
                         } transition-colors`}
                     >
                       {isProcessing ? "Processing..." : "Process Payment"}
@@ -213,3 +227,4 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
     </div>
   );
 }
+

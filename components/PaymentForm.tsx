@@ -4,6 +4,7 @@ import { useState } from "react";
 import { parseEther } from "viem";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { getContract } from "@/lib/contract";
+import { Wallet, Clock, DollarSign, AlertCircle } from 'lucide-react';
 
 export function PaymentForm() {
   const { address } = useAccount();
@@ -24,7 +25,7 @@ export function PaymentForm() {
       const formData = new FormData(form);
       const recipient = formData.get("recipient") as string;
       const amount = parseEther(formData.get("amount") as string);
-      const interval = BigInt(formData.get("interval") as string); // Direct seconds input
+      const interval = BigInt(formData.get("interval") as string);
 
       const contract = getContract();
 
@@ -37,7 +38,7 @@ export function PaymentForm() {
       });
 
       const hash = await walletClient.writeContract(request);
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      await publicClient.waitForTransactionReceipt({ hash });
       form.reset();
     } catch (err) {
       console.error("Payment setup error:", err);
@@ -48,49 +49,64 @@ export function PaymentForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <div className="bg-red-100 text-red-700 p-3 rounded">{error}</div>}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/50 text-red-700 p-4 rounded-lg flex items-center space-x-2">
+          <AlertCircle className="h-5 w-5" />
+          <span>{error}</span>
+        </div>
+      )}
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Recipient Address</label>
-        <input
-          name="recipient"
-          required
-          className="w-full px-3 py-2 border rounded"
-          placeholder="0x..."
-        />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-zinc-200">Recipient Address</label>
+        <div className="relative">
+          <input
+            name="recipient"
+            required
+            className="w-full px-4 py-2 bg-zinc-800/50 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent pl-10"
+            placeholder="0x..."
+          />
+          <Wallet className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500 h-5 w-5" />
+        </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Amount (GAS)</label>
-        <input
-          type="number"
-          name="amount"
-          step="0.000000000000000001"
-          required
-          className="w-full px-3 py-2 border rounded"
-          placeholder="0.0"
-        />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-zinc-200">Amount (GAS)</label>
+        <div className="relative">
+          <input
+            type="number"
+            name="amount"
+            step="0.000000000000000001"
+            required
+            className="w-full px-4 py-2 bg-zinc-800/50 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent pl-10"
+            placeholder="0.0"
+          />
+          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500 h-5 w-5" />
+        </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Interval</label>
-        <input
-          type="number"
-          name="interval"
-          required
-          className="w-full px-3 py-2 border rounded"
-          placeholder="1"
-        />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-zinc-200">Interval (in seconds)</label>
+        <div className="relative">
+          <input
+            type="number"
+            name="interval"
+            required
+            className="w-full px-4 py-2 bg-zinc-800/50 border border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent pl-10"
+            placeholder="86400"
+          />
+          <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500 h-5 w-5" />
+        </div>
       </div>
 
       <button
         type="submit"
         disabled={loading || !address || !walletClient}
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
+        className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {!address ? "Connect Wallet" : loading ? "Setting up..." : "Setup Payment"}
       </button>
     </form>
   );
 }
+

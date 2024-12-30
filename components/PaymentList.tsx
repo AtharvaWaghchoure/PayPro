@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAccount, usePublicClient } from "wagmi";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { getContract } from "@/lib/contract";
 import { formatEther } from "viem";
 
@@ -17,9 +17,11 @@ type PaymentDetails = {
 export function PaymentList({ type }: { type: "organization" | "employee" }) {
   const { address } = useAccount();
   const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
   const [payments, setPayments] = useState<Record<string, PaymentDetails>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -65,7 +67,6 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
         }
 
         setPayments(paymentDetails);
-        console.log(paymentDetails);
       } catch (err) {
         console.error("Failed to fetch payments:", err);
         setError("Failed to fetch payment details. Please try again.");
@@ -76,6 +77,44 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
 
     fetchPayments();
   }, [publicClient, address, type]);
+
+  const handleProcessPayment = async (id: string) => {
+    if (!walletClient || !publicClient) return;
+
+    try {
+      setProcessing((prev) => ({ ...prev, [id]: true }));
+      const contract = getContract();
+
+      const hash = await walletClient.writeContract({
+        ...contract,
+        functionName: "processRecurringPayment",
+        args: [BigInt(id)],
+      });
+
+      // Wait for the transaction to be mined
+      await publicClient.waitForTransactionReceipt({ hash });
+
+      // Refresh payment details
+      const canProcess = (await publicClient.readContract({
+        ...contract,
+        functionName: "canProcessPayment",
+        args: [BigInt(id)],
+      })) as boolean;
+
+      setPayments((prev) => ({
+        ...prev,
+        [id]: {
+          ...prev[id],
+          canProcess,
+        },
+      }));
+    } catch (err) {
+      console.error("Failed to process payment:", err);
+      setError("Failed to process payment. Please try again.");
+    } finally {
+      setProcessing((prev) => ({ ...prev, [id]: false }));
+    }
+  };
 
   const formatAddress = (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`;
 
@@ -123,6 +162,8 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
     <div className="space-y-4">
       {paymentIds.map((id) => {
         const payment = payments[id];
+        const isProcessing = processing[id];
+
         return (
           <div
             key={id}
@@ -150,9 +191,18 @@ export function PaymentList({ type }: { type: "organization" | "employee" }) {
                     {payment.isActive ? "Active" : "Inactive"}
                   </div>
                   {payment.canProcess && (
-                    <div className="text-sm px-2 py-1 rounded-full inline-block bg-blue-100 text-blue-700">
-                      Ready to Process
-                    </div>
+                    <button
+                      onClick={() => handleProcessPayment(id)}
+                      disabled={isProcessing}
+                      className={`text-sm px-3 py-1 rounded-full 
+                        ${
+                          isProcessing
+                            ? "bg-blue-50 text-blue-400 cursor-not-allowed"
+                            : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                        } transition-colors`}
+                    >
+                      {isProcessing ? "Processing..." : "Process Payment"}
+                    </button>
                   )}
                 </div>
               </div>

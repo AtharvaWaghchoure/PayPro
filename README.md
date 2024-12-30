@@ -70,7 +70,7 @@ npm run dev
 ## Network Details
 
 ### Neo X Mainnet
-- Chain ID: 1229
+- Chain ID: 47763
 - RPC: https://mainnet.rpc.banelabs.org
 - Contract: 0x33837cCc3fE3774e3b36513c81424E4944D08e57
 

@@ -115,6 +115,26 @@ Password: employee123
 - `getPaymentStats()`
 - `canProcessPayment(uint256 paymentId)`
 
+## Business Model
+
+### Revenue Streams
+
+1. Transaction Fees (0.5% per payment, volume discounts available)
+2. Premium Features
+  * Advanced analytics: $49/month
+  * API access: $199/month+
+  * Custom integrations
+3. Enterprise Solutions ($999/month+)
+  * Dedicated support
+  * Custom smart contracts
+  * Compliance reporting
+
+### Market Focus
+* Small-medium businesses (5-200 employees)
+* Web3 organizations  
+* International companies
+
+
 ## Troubleshooting
 
 1. **Wallet Issues**
